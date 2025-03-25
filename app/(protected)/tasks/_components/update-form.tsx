@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { z } from "zod";
 import { taskSchema } from "@/schemas/task-schema";
+import { TaskField } from "@/app/(protected)/tasks/_components/task";
 import { Input } from "@/components/ui/input";
 import { DifficultySelector } from "@/app/(protected)/tasks/_components/difficulty-selector";
 import { TagsSelector } from "@/app/(protected)/tasks/_components/tags-selector";
@@ -12,27 +13,30 @@ import { LoadingSpinner } from "@/app/(protected)/tasks/_components/loading-spin
 import { Button } from "@/components/ui/button";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { createTask } from "@/server/create-task";
 import { Form } from "@/components/ui/form";
-import { TaskField } from "@/app/(protected)/tasks/_components/task";
 
-const CreateForm = () => {
+import { Task } from "@/interfaces/task";
+import { updateTask } from "@/server/update-task";
+
+const UpdateForm = ({ task }: { task: Task }) => {
   const router = useRouter();
+
+  const { id, title, content, input, code, level, tags } = task;
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
-      title: "",
-      level: "easy",
-      tags: [],
-      content: "",
-      input: "",
-      code: "",
+      title: title,
+      level: level,
+      tags: tags,
+      content: content,
+      input: input,
+      code: code,
     },
   });
 
   async function onSubmit(values: z.infer<typeof taskSchema>) {
-    const response = await createTask(values);
+    const response = await updateTask(values, id);
 
     if (response) router.push("/home");
     console.log(values);
@@ -97,7 +101,7 @@ const CreateForm = () => {
             />
           </TaskField>
           <Button className="bg-emerald-500 mb-10" type="submit">
-            Zapisz test
+            Zaaktualizuj test
           </Button>
         </div>
       </form>
@@ -105,4 +109,4 @@ const CreateForm = () => {
   );
 };
 
-export { CreateForm };
+export { UpdateForm };

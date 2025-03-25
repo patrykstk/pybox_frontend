@@ -12,7 +12,7 @@ import {
 import { cloneElement, isValidElement } from "react";
 import { cn } from "@/lib/utils";
 
-interface TaskProps {
+interface TaskFieldProps {
   index: number;
   title: string;
   description?: string;
@@ -22,7 +22,7 @@ interface TaskProps {
   required?: boolean;
 }
 
-const Task = ({
+const TaskField = ({
   index,
   title,
   description,
@@ -66,4 +66,4 @@ const Task = ({
   );
 };
 
-export { Task };
+export { TaskField };

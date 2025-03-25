@@ -13,7 +13,7 @@ const taskSchema = z.object({
     .string()
     .min(1, "Treść zadania jest wymagana")
     .max(1000, "Treść zadania może mieć maksymalnie 1000 znaków"),
-  input: z.string().optional(),
+  input: z.string().optional().or(z.literal("")).or(z.null()),
   code: z
     .string()
     .min(1, "Rozwiązanie jest wymagane")
