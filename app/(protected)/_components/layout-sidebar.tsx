@@ -9,7 +9,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { House, BookMarked, BookPlus } from "lucide-react";
+import { BookMarked, BookPlus, House } from "lucide-react";
 import { AppLogo } from "@/components/app-logo";
 
 const sidebarItems = [
@@ -61,4 +61,4 @@ const LayoutSidebar = () => {
   );
 };
 
-export default LayoutSidebar;
+export { LayoutSidebar };
