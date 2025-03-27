@@ -1,43 +1,43 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import api from "@/lib/api"; // Twoja instancja axios
+import axios from "axios";
 
-// Hook do pobrania danych użytkownika
+// Typ dla danych użytkownika
+interface User {
+  id: number;
+  name: string;
+  surname: string;
+  email: string;
+  created_at: string;
+  roles: string[];
+}
+
 const useUser = () => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [user, setUser] = useState<User | null>(null); // Stan użytkownika
+  const [loading, setLoading] = useState<boolean>(true); // Stan ładowania
+  const [error, setError] = useState<string | null>(null); // Stan błędu
+  const [errorDetails, setErrorDetails] = useState<any | null>(null); // Szczegóły błędu
 
-  // Funkcja do pobrania danych użytkownika
   useEffect(() => {
-    const fetchUser = async () => {
+    // Funkcja do pobierania danych o użytkowniku
+    const fetchUserData = async () => {
       try {
-        setLoading(true);
-        const response = await api.get("/user");
-        console.log("Response:", response); // Logowanie odpowiedzi z serwera
-
-        if (response.data.status === "success") {
-          setUser(response.data.user);
-        } else {
-          setError(
-            "Failed to fetch user data: " + response.data.message ||
-              "Unknown error",
-          );
-        }
-      } catch (err) {
-        console.error("Error fetching user data:", err); // Logowanie błędu
-        setError(
-          "Error fetching user data: " +
-            (err.response?.data?.message || err.message || "Unknown error"),
-        );
+        const response = await axios.get("/user"); // Zapytanie do API
+        setUser(response.data.user); // Ustaw dane użytkownika
+      } catch (err: any) {
+        // Jeżeli błąd jest związany z axios (np. odpowiedź HTTP 400/500)
+        setError("Błąd podczas pobierania danych użytkownika.");
+        setErrorDetails(err.response?.data || err.message || err);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchUser();
-  }, []); // Pusty array sprawia, że zapytanie jest wykonywane tylko raz po załadowaniu komponentu
+    fetchUserData(); // Uruchomienie funkcji po załadowaniu komponentu
+  }, []); // Tylko raz, gdy komponent się zamontuje
 
-  return { user, loading, error };
+  return { user, loading, error, errorDetails }; // Zwracamy dane użytkownika, stany i szczegóły błędu
 };
 
 export default useUser;

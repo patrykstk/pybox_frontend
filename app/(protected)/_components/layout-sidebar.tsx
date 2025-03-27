@@ -31,6 +31,18 @@ const sidebarItems = [
     url: "/tasks/create",
     icon: BookPlus,
   },
+  {
+    id: 4,
+    title: "Wyniki moich odpowiedzi",
+    url: "/tasks/create",
+    icon: BookPlus,
+  },
+  {
+    id: 5,
+    title: "Oceń odpowiedzi",
+    url: "/tasks/create",
+    icon: BookPlus,
+  },
 ];
 
 const LayoutSidebar = () => {

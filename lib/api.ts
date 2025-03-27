@@ -25,10 +25,10 @@ api.interceptors.request.use(
     if (token) {
       try {
         const decryptedToken = await decrypt(token);
-        console.log("Decrypted Token:", decryptedToken);
+        //console.log("Decrypted Token:", decryptedToken);
         config.headers.Authorization = `Bearer ${decryptedToken.token}`;
       } catch (error) {
-        console.error("Error decrypting token:", error);
+        //console.error("Error decrypting token:", error);
         // Optionally, you could logout the user here if token is invalid.
       }
     } else {
