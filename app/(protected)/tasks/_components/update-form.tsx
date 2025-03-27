@@ -17,6 +17,7 @@ import { Form } from "@/components/ui/form";
 
 import { Task } from "@/interfaces/task";
 import { updateTask } from "@/server/update-task";
+import { deleteTask } from "@/server/delete-task";
 
 const UpdateForm = ({ task }: { task: Task }) => {
   const router = useRouter();
@@ -40,6 +41,12 @@ const UpdateForm = ({ task }: { task: Task }) => {
 
     if (response) router.push("/home");
     console.log(values);
+  }
+
+  async function onDelete() {
+    const response = await deleteTask(task.id);
+    if (response) router.push("/home");
+    console.log("Koniec funkcji delete");
   }
 
   return (
@@ -102,6 +109,9 @@ const UpdateForm = ({ task }: { task: Task }) => {
           </TaskField>
           <Button className="bg-emerald-500 mb-10" type="submit">
             Zaaktualizuj test
+          </Button>
+          <Button className="bg-red-600" onClick={onDelete}>
+            Usuń test
           </Button>
         </div>
       </form>
