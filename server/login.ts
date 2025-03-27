@@ -7,36 +7,51 @@ import { encrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 
 const login = async (values: z.infer<typeof loginSchema>) => {
-  const validatedFields = loginSchema.safeParse(values);
+  console.log("Received values:", values);
 
+  const validatedFields = loginSchema.safeParse(values);
   if (!validatedFields.success) {
+    console.error("Validation failed:", validatedFields.error.format());
     return { error: "Invalid fields!" };
   }
 
   const { email, password } = validatedFields.data;
+  console.log("Validated fields:", { email, password });
 
   try {
-    const response = await api.post("/login", { email, password });
+    console.log("Sending login request...");
+    const response = await api.post(
+      "/login",
+      { email, password },
+      { headers: { "Content-Type": "application/json" } },
+    );
 
-    if (response.data.token) {
+    console.log("Response received:", response.data);
+
+    if (response.data?.token) {
       const token = response.data.token;
-
       const expires = new Date(Date.now() + 60 * 60 * 10000);
 
-      const session = await encrypt({ token, expires });
+      console.log("Encrypting session...");
+      const encryptedToken = await encrypt({ token, expires });
 
+      console.log("Storing token in cookies...");
       const cookieStore = await cookies();
-      cookieStore.set("sessionToken", session, { expires, httpOnly: true });
-      console.log("Successfully logged in");
+      cookieStore.set("sessionToken", encryptedToken, {
+        expires,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Make sure it's secure in production
+      });
+
+      console.log("Login successful!");
       return { success: "Successfully logged in!" };
     } else {
-      return { error: "Login failed: Invalid credentials!" };
+      console.error("Login failed: No token received!");
+      return { error: "Login failed: No token received!" };
     }
-  } catch (error) {
-    console.error(error);
-    console.log("Login failed!");
-
-    return { error: "Login failed!" };
+  } catch (error: any) {
+    console.error("Login API Error:", error.response?.data || error.message);
+    return { error: "Login failed! Please try again later." };
   }
 };
 

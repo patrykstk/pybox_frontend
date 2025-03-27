@@ -1,4 +1,5 @@
-import "server-only";
+"use server";
+
 import { jwtVerify, SignJWT } from "jose";
 import { cookies } from "next/headers";
 
@@ -10,7 +11,7 @@ if (!secretKey) {
 
 const encodedKey = new TextEncoder().encode(secretKey);
 
-export async function encrypt(payload: any) {
+export async function encrypt(payload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -18,7 +19,7 @@ export async function encrypt(payload: any) {
     .sign(encodedKey);
 }
 
-export async function decrypt(session: string | undefined = "") {
+export async function decrypt(session) {
   if (!session) {
     throw new Error("No session token provided");
   }

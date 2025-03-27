@@ -20,11 +20,21 @@ const api = axios.create({
 api.interceptors.request.use(
   async (config) => {
     if (config.url === "/login") return config;
+
     const token = await getToken();
     if (token) {
-      const decryptedToken = await decrypt(token);
-      config.headers.Authorization = `Bearer ${decryptedToken.token}`;
+      try {
+        const decryptedToken = await decrypt(token);
+        console.log("Decrypted Token:", decryptedToken);
+        config.headers.Authorization = `Bearer ${decryptedToken.token}`;
+      } catch (error) {
+        console.error("Error decrypting token:", error);
+        // Optionally, you could logout the user here if token is invalid.
+      }
+    } else {
+      console.warn("No token found, API request without authorization!");
     }
+
     return config;
   },
   (error) => Promise.reject(error),
