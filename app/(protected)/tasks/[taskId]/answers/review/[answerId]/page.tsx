@@ -73,12 +73,7 @@ export default function ReviewAnswerPage() {
         <CardDescription>Wybierz ocenę od 0 do 5 gwiazdek</CardDescription>
       </CardHeader>
       <CardContent>
-        <TaskDetails
-          content={""}
-          title={""}
-          submittedAt={""}
-          submittedBy={""}
-        />
+        <TaskDetails taskId={Number(taskId)} answerId={Number(answerId)} />
         <RatingForm
           rating={rating}
           setRating={setRating}

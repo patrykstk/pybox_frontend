@@ -93,8 +93,7 @@ export default function TestAnswers() {
   };
 
   const handleViewAnswer = (answer: Answer) => {
-    //router.push(`/tasks/${taskId}/answers/review/${answer.id}`);
-    router.push(`/tasks/${taskId}/answers/review/3`);
+    router.push(`/tasks/${taskId}/answers/review/${answer.id}`);
   };
 
   if (loading && !answers) {
