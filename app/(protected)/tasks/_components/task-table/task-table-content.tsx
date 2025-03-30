@@ -17,9 +17,10 @@ import { formatDate } from "@/lib/utils";
 
 interface TaskTableContentProps {
   tasks: Task[];
+  variant: "solve" | "edit";
 }
 
-const TaskTableContent = ({ tasks }: TaskTableContentProps) => {
+const TaskTableContent = ({ tasks, variant }: TaskTableContentProps) => {
   const router = useRouter();
 
   return (
@@ -41,7 +42,11 @@ const TaskTableContent = ({ tasks }: TaskTableContentProps) => {
             tasks.map((task, index) => (
               <TableRow
                 key={task.id}
-                onClick={() => router.push(`/tasks/my/${task.id}`)}
+                onClick={
+                  variant === "edit"
+                    ? () => router.push(`/tasks/my/${task.id}`)
+                    : () => router.push(`/tasks/solve/${task.id}`)
+                }
                 className="cursor-pointer hover:bg-accent transition"
               >
                 <TableCell className="font-medium">{index + 1}</TableCell>

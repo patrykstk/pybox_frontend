@@ -10,13 +10,17 @@ interface MyAnswer extends ApiResponse {
   mark: number | null;
 }
 
-const getMyAnswerForTask = async (taskId: number): Promise<MyAnswer | null> => {
+const getMyAnswerForTask = async (taskId: string): Promise<MyAnswer | null> => {
   try {
     const response = await api.get<MyAnswer>(`/task/${taskId}/answer/my`);
     return response.data;
-  } catch (error) {
-    console.error("Błąd pobierania zadań:", error);
-    return null;
+  } catch (error: any) {
+    if (error.response?.status === 404) {
+      console.warn(`Brak odpowiedzi użytkownika dla zadania ${taskId}`);
+      return null;
+    }
+    console.error("Błąd pobierania odpowiedzi:", error);
+    throw error;
   }
 };
 

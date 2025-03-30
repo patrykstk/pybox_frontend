@@ -1,12 +1,13 @@
-import { getUserData } from "@/server/get-user-data";
+import { AllTaskTable } from "@/app/(protected)/tasks/_components/task-table/all-task-table";
 
-const HomePage = async () => {
-  const data = await getUserData();
-
+const HomePage = () => {
   return (
-    <div>
-      <pre>{JSON.stringify(data, null, 2)}</pre>
-      {data.name} {data.surname}
+    <div className="flex flex-col w-full space-y-5">
+      <h1 className="text-5xl uppercase font-bold">Lista dostępnych zadań</h1>
+      <h6 className="text-xl ">
+        Rozwiąż dowolne z poniższych zadań i sprawdź swoje umiejętności!
+      </h6>
+      <AllTaskTable />
     </div>
   );
 };

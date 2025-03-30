@@ -1,19 +1,33 @@
 import { getTaskWithId } from "@/server/get-task-with-id";
 import { SolveForm } from "@/app/(protected)/tasks/_components/solve-form";
 import { getUserData } from "@/server/get-user-data";
+import { getMyAnswerForTask } from "@/server/get-my-answer-for-task";
 
-const SolveTaskPage = async ({ params }: { params: { taskId: string } }) => {
+const SolveTaskPage = async ({
+  params,
+}: {
+  params: Promise<{ taskId: string }>;
+}) => {
+  const { taskId } = await params;
+
   const user = await getUserData();
-  const myTask = await getTaskWithId(params.taskId);
+  const task = await getTaskWithId(taskId);
+  const answer = await getMyAnswerForTask(taskId);
 
-  if (myTask?.created_by.id === user.id)
+  if (answer && answer.status === "success") {
+    return (
+      <div>Już raz rozwiązałeś to zadanie. Otrzymałeś ocenę {answer.mark}</div>
+    );
+  }
+
+  if (task?.created_by.id === user.id)
     return <div>co ty nie mozesz wykonac wlasnego zadania!</div>;
 
-  if (!myTask) return <div>pusto</div>;
+  if (!task) return <div>pusto</div>;
   return (
     <div>
       <div>wjaaaat</div>
-      <SolveForm task={myTask} />
+      <SolveForm task={task} />
     </div>
   );
 };

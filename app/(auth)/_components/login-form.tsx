@@ -28,7 +28,7 @@ const LoginForm = () => {
     setIsLoading(true);
     const response = await login(values);
 
-    if (response.success) router.push("/tasks");
+    if (response.success) router.push("/home");
 
     setIsLoading(false);
   };
