@@ -11,13 +11,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import {
-  BookMarked,
-  BookPlus,
-  ClipboardCheck,
-  FileSpreadsheet,
-  House,
-} from "lucide-react";
+import { BookMarked, BookPlus, House } from "lucide-react";
 import { AppLogo } from "@/components/app-logo";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
@@ -40,18 +34,6 @@ const sidebarItems = [
     title: "Stwórz zadanie",
     url: "/tasks/create",
     icon: BookPlus,
-  },
-  {
-    id: 4,
-    title: "Wyniki moich odpowiedzi",
-    url: "/tasks/results",
-    icon: FileSpreadsheet,
-  },
-  {
-    id: 5,
-    title: "Oceń odpowiedzi",
-    url: "/tasks/review",
-    icon: ClipboardCheck,
   },
 ];
 
