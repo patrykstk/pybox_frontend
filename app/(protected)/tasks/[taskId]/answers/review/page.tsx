@@ -110,21 +110,21 @@ export default function TestAnswers() {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="text-2xl font-bold mb-6">Test Answers</h1>
+      <h1 className="text-2xl font-bold mb-6">Odpowiedzi na zadanie</h1>
       <Card>
         <CardHeader>
-          <CardTitle>Answers for Task #{taskId}</CardTitle>
+          <CardTitle>Odpowiedzi do zadania o nr. #{taskId}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
                 <tr className="border-b">
-                  <th className="text-left py-3 px-4">User</th>
+                  <th className="text-left py-3 px-4">Użytkownik</th>
                   <th className="text-left py-3 px-4">Status</th>
-                  <th className="text-left py-3 px-4">Mark</th>
-                  <th className="text-left py-3 px-4">Submitted</th>
-                  <th className="text-right py-3 px-4">Actions</th>
+                  <th className="text-left py-3 px-4">Ocena</th>
+                  <th className="text-left py-3 px-4">Oddano</th>
+                  <th className="text-right py-3 px-4">Przejdź do</th>
                 </tr>
               </thead>
               <tbody>
@@ -135,15 +135,15 @@ export default function TestAnswers() {
                     </td>
                     <td className="py-3 px-4">
                       {answer.is_correct === null ? (
-                        <Badge variant="outline">Pending</Badge>
+                        <Badge variant="outline">Oczekuje na ocene</Badge>
                       ) : answer.is_correct ? (
-                        <Badge>Correct</Badge>
+                        <Badge variant="success">Correct</Badge>
                       ) : (
-                        <Badge variant="destructive">Incorrect</Badge>
+                        <Badge variant="destructive">Błędne</Badge>
                       )}
                     </td>
                     <td className="py-3 px-4">
-                      {answer.mark !== null ? answer.mark : "Not graded"}
+                      {answer.mark !== null ? answer.mark : "Brak oceny"}
                     </td>
                     <td className="py-3 px-4">
                       {new Date(answer.created_at).toLocaleDateString()}
@@ -155,7 +155,7 @@ export default function TestAnswers() {
                         onClick={() => handleViewAnswer(answer)}
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        View
+                        Podgląd
                       </Button>
                     </td>
                   </tr>
@@ -166,7 +166,7 @@ export default function TestAnswers() {
                       colSpan={5}
                       className="py-8 text-center text-muted-foreground"
                     >
-                      No answers found
+                      Nie znaleziono odpowiedzi
                     </td>
                   </tr>
                 )}

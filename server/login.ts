@@ -40,7 +40,7 @@ const login = async (values: z.infer<typeof loginSchema>) => {
       cookieStore.set("sessionToken", encryptedToken, {
         expires,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Make sure it's secure in production
+        secure: process.env.NODE_ENV === "production",
       });
 
       console.log("Login successful!");

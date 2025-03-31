@@ -20,13 +20,13 @@ const SolveTaskPage = async ({
     );
   }
 
-  if (task?.created_by.id === user.id)
+  if (task && user && Number(task.created_by.id) === user.id)
     return <div>co ty nie mozesz wykonac wlasnego zadania!</div>;
 
   if (!task) return <div>pusto</div>;
   return (
     <div>
-      <div>wjaaaat</div>
+      <div>Raz raz, rozwiązuj mi tu czas operacji 5 minut.</div>
       <SolveForm task={task} />
     </div>
   );

@@ -14,7 +14,7 @@ import {
 import { BookMarked, BookPlus, House } from "lucide-react";
 import { AppLogo } from "@/components/app-logo";
 import { usePathname } from "next/navigation";
-import clsx from "clsx";
+import { cn } from "@/lib/utils";
 
 const sidebarItems = [
   {
@@ -56,7 +56,7 @@ const LayoutSidebar = () => {
                     <SidebarMenuButton asChild>
                       <a
                         href={item.url}
-                        className={clsx(
+                        className={cn(
                           "flex items-center gap-3 px-4 py-2 rounded-md transition-all",
                           isActive
                             ? "bg-yellow-500 text-black hover:bg-yellow-500 hover:text-black/70 font-medium"

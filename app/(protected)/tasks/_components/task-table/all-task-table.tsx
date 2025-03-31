@@ -1,62 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { TaskTableContent } from "@/app/(protected)/tasks/_components/task-table/task-table-content";
 import { getTasks } from "@/server/get-tasks";
-import { Task } from "@/interfaces/task";
 import { level } from "@/types/level";
+import { useQuery } from "@tanstack/react-query";
 
 const AllTaskTable = () => {
   const [search, setSearch] = useState("");
-  const [level, setLevel] = useState<level>("easy");
+  const [level, setLevel] = useState<level | undefined>();
   const [tags, setTags] = useState<string[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const [page, setPage] = useState(1);
 
-  useEffect(() => {
-    const fetchTasks = async () => {
-      const data = await getTasks({ search, level, tags });
-      setTasks(data?.data ?? []);
-    };
+  const { data, isLoading, error, isFetching } = useQuery({
+    queryKey: ["tasks", search, level, tags, page],
+    queryFn: () => getTasks({ search, level, tags, page }),
+    staleTime: 1000 * 60 * 5,
+  });
 
-    fetchTasks();
-  }, [search, level, tags]);
+  const tasks = data?.data || [];
 
-  return (
-    <div className="p-4">
-      {/* Filtry */}
-      <div className="flex gap-4 mb-4">
-        <input
-          type="text"
-          placeholder="Szukaj zadań..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="border p-2 rounded"
-        />
+  if (isLoading || isFetching) {
+    return <div>Ładuje testy...</div>;
+  }
 
-        <select
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-          className="border p-2 rounded"
-        >
-          <option value="">Wszystkie poziomy</option>
-          <option value="easy">Łatwy</option>
-          <option value="medium">Średni</option>
-          <option value="hard">Trudny</option>
-          <option value="insane">bardzo Trudny</option>
-        </select>
-
-        <button
-          onClick={() => {}}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Filtruj: React & TypeScript
-        </button>
-      </div>
-
-      {/* Tabela */}
-      <TaskTableContent tasks={tasks} variant="solve" />
-    </div>
-  );
+  return <TaskTableContent tasks={tasks} variant="solve" />;
 };
 
 export { AllTaskTable };

@@ -1,8 +1,12 @@
 import { getUserData } from "@/server/get-user-data";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { User } from "@/interfaces/user";
 
 const Profile = async () => {
-  const user = await getUserData();
+  const user: User | undefined = await getUserData();
+
+  if (!user) return <div>Anonim</div>;
+
   const initials =
     `${user.name.charAt(0)}${user.surname.charAt(0)}`.toUpperCase();
 

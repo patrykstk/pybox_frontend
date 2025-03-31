@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { submitRating } from "@/server/rate-task";
@@ -26,6 +26,7 @@ export default function ReviewAnswerPage() {
   const [submitting, setSubmitting] = useState(false);
   const [rating, setRating] = useState(0);
   const [submitted, setSubmitted] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     if (!answerId) {
@@ -44,7 +45,7 @@ export default function ReviewAnswerPage() {
       if (result.success) {
         toast.success("Ocena została zapisana");
         setSubmitted(true);
-        window.history.back();
+        router.push(`/tasks/${taskId}/answers/review`);
       } else {
         toast.error(result.error || "Wystąpił błąd podczas zapisywania oceny");
       }
@@ -59,12 +60,15 @@ export default function ReviewAnswerPage() {
   if (loading) return <LoadingSpinner />;
   if (submitted)
     return (
-      <SubmittedForm rating={rating} onGoBack={() => window.history.back()} />
+      <SubmittedForm
+        rating={rating}
+        onGoBack={() => {
+          router.push(`/tasks/${taskId}/answers/review`);
+        }}
+      />
     );
   if (!answerId)
-    return (
-      <ErrorForm onGoBack={() => window.history.back()} answerId={answerId} />
-    );
+    return <ErrorForm onGoBack={() => router.back()} answerId={answerId} />;
 
   return (
     <Card className="max-w-2xl mx-auto mt-8">

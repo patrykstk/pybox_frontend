@@ -9,16 +9,42 @@ import {
 import { LogOut, Settings } from "lucide-react";
 import { logout } from "@/server/logout";
 import { useRouter } from "next/navigation";
+import { getUserData } from "@/server/get-user-data";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 const SettingsButton = () => {
   const router = useRouter();
 
+  const [loading, setLoading] = useState(false);
+
+  const {
+    data: user,
+    status,
+    error,
+  } = useQuery({
+    queryKey: ["user"],
+    queryFn: getUserData,
+  });
+
   const handleLogout = async () => {
-    const response = await logout();
+    setLoading(true);
+    try {
+      await logout();
+      router.push("/login");
+    } catch (err) {
+      console.error("Logout failed:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleSettings = async () => {
-    router.push("/settings");
+  const handlePasswordChange = async () => {
+    router.push("/settings/password");
+  };
+
+  const handleRoleChange = async () => {
+    router.push("/settings/roles");
   };
 
   return (
@@ -27,14 +53,40 @@ const SettingsButton = () => {
         <Settings />
       </DropdownMenuTrigger>
       <DropdownMenuContent>
-        <DropdownMenuItem onClick={handleSettings}>
-          Ustawienia profilu
+        {status === "success" && user && user.roles.includes("manager") ? (
+          <DropdownMenuItem
+            onClick={handleRoleChange}
+            className="hover:cursor-pointer hover:bg-gray-100"
+            disabled={loading}
+          >
+            Zmień role
+          </DropdownMenuItem>
+        ) : (
+          <></>
+        )}
+        <DropdownMenuItem
+          onClick={handlePasswordChange}
+          className="hover:cursor-pointer hover:bg-gray-100"
+          disabled={loading}
+        >
+          Zmień hasło
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="flex flex-row items-center text-red-400 hover:bg-red-500/40"
+          className={`flex flex-row items-center text-red-400 ${
+            loading
+              ? "cursor-not-allowed opacity-50"
+              : "hover:bg-red-500/40 hover:cursor-pointer"
+          }`}
           onClick={handleLogout}
+          disabled={loading}
         >
-          <LogOut /> Logout
+          {loading ? (
+            <span>Logging out...</span>
+          ) : (
+            <>
+              <LogOut /> Logout
+            </>
+          )}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

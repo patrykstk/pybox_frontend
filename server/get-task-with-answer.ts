@@ -8,8 +8,6 @@ const getTaskWithAnswer = async (
   taskId: number,
   answerId: number,
 ): Promise<{ task: Task | null; answer: Answer | null }> => {
-  console.log("Wywołanie getTaskWithAnswer:", { taskId, answerId });
-
   try {
     const [taskResponse, answerResponse] = await Promise.all([
       api.get(`/task/${taskId}`),

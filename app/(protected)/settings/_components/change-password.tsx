@@ -30,7 +30,6 @@ const ChangePassword = () => {
   async function onSubmit(values: z.infer<typeof changePasswordSchema>) {
     const response = await changePassword(values);
     const log = await logout();
-    console.log(values);
   }
 
   return (

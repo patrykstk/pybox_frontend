@@ -11,7 +11,7 @@ const updateTask = async (
   const validatedFields = taskSchema.safeParse(values);
 
   if (!validatedFields.success) {
-    return { error: "Invalid fields!" };
+    return { success: false, error: "Invalid fields!" };
   }
 
   const { title, content, tags, level, input, code } = validatedFields.data;
@@ -26,9 +26,17 @@ const updateTask = async (
       tags,
     });
 
-    if (response.data.status === "success") return { success: "yay" };
+    if (response.data.status === "success") {
+      return { success: true, message: "Task updated successfully" };
+    } else {
+      return { success: false, error: "Failed to update task" };
+    }
   } catch (error) {
-    return { error: "bład" };
+    console.error(error);
+    return {
+      success: false,
+      error: "An error occurred while updating the task",
+    };
   }
 };
 

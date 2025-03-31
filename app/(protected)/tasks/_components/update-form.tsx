@@ -107,12 +107,14 @@ const UpdateForm = ({ task }: { task: Task }) => {
               loading={<LoadingSpinner />}
             />
           </TaskField>
-          <Button className="bg-emerald-500 mb-10" type="submit">
-            Zaaktualizuj test
-          </Button>
-          <Button className="bg-red-600" onClick={onDelete}>
-            Usuń test
-          </Button>
+          <div className="w-full flex flex-row gap-x-5 items-center justify-center">
+            <Button className="bg-emerald-500" type="submit">
+              Zaaktualizuj test
+            </Button>
+            <Button className="bg-red-600" onClick={onDelete}>
+              Usuń test
+            </Button>
+          </div>
         </div>
       </form>
     </Form>

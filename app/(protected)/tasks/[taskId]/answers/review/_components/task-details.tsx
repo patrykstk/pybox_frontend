@@ -1,3 +1,4 @@
+import { useQuery } from "@tanstack/react-query";
 import { getTaskWithAnswer } from "@/server/get-task-with-answer";
 
 interface TaskDetailsProps {
@@ -5,15 +6,31 @@ interface TaskDetailsProps {
   answerId: number;
 }
 
-const TaskDetails = async ({ taskId, answerId }: TaskDetailsProps) => {
-  const response = await getTaskWithAnswer(taskId, answerId);
+const TaskDetails = ({ taskId, answerId }: TaskDetailsProps) => {
+  const { data, status, error, isFetching } = useQuery({
+    queryKey: ["taskDetails", taskId, answerId],
+    queryFn: () => getTaskWithAnswer(taskId, answerId),
+  });
 
-  if (!response) {
-    return <div></div>;
+  if (status === "pending") {
+    return <div>Ładowanie...</div>;
   }
 
-  const task = response.task;
-  const answer = response.answer;
+  if (status === "error") {
+    return (
+      <div>
+        Błąd ładowania danych:{" "}
+        {error instanceof Error ? error.message : "Nieznany błąd"}
+      </div>
+    );
+  }
+
+  if (!data) {
+    return <div>Brak danych</div>;
+  }
+
+  const task = data.task;
+  const answer = data.answer;
 
   return (
     <div className="space-y-6">
@@ -31,6 +48,8 @@ const TaskDetails = async ({ taskId, answerId }: TaskDetailsProps) => {
           <p>{task?.content}</p>
         </div>
       </div>
+
+      <div>{isFetching ? "Aktualizacja w tle..." : " "}</div>
     </div>
   );
 };

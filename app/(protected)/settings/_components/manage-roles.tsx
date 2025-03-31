@@ -43,7 +43,6 @@ const FormSchema = z.object({
   }),
 });
 
-// Define the type from the Zod schema
 type FormValues = z.infer<typeof FormSchema>;
 
 const ManageRoles = () => {
