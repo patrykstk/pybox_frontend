@@ -54,7 +54,13 @@ const TaskTableContent = ({ tasks, variant }: TaskTableContentProps) => {
                 <TableCell>
                   <DifficultyBadge variant={task.level} text={task.level} />
                 </TableCell>
-                <TableCell>{task.created_by.name}</TableCell>
+                <TableCell>
+                  {variant === "edit" ? (
+                    <span>Ty</span>
+                  ) : (
+                    <span>{task.created_by.name}</span>
+                  )}
+                </TableCell>
                 <TableCell>{formatDate(task.updated_at)}</TableCell>
                 <TableCell>
                   <div className="flex flex-wrap gap-1">

@@ -9,7 +9,7 @@ interface RatingData {
 
 const submitRating = async (data: RatingData) => {
   try {
-    if (!data.rating || data.rating < 0 || data.rating > 5) {
+    if (data.rating < 0 || data.rating > 5) {
       return { success: false, error: "Ocena musi być liczbą od 0 do 5" };
     }
 
@@ -19,11 +19,7 @@ const submitRating = async (data: RatingData) => {
 
     return {
       success: true,
-      data: {
-        id: Math.random().toString(36).substring(2, 9),
-        ...data,
-        createdAt: new Date().toISOString(),
-      },
+      message: response.data.message || "Ocena została zapisana pomyślnie!",
     };
   } catch (error) {
     console.error("Błąd podczas zapisywania oceny:", error);

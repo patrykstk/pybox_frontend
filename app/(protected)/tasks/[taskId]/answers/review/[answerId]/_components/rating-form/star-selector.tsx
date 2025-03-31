@@ -12,17 +12,15 @@ interface StarRatingProps {
   max?: number;
   size?: "sm" | "md" | "lg";
   readOnly?: boolean;
-  allowHalf?: boolean;
   allowZero?: boolean;
 }
 
-export function StarRating({
+export function StarSelector({
   value,
   onChange,
   max = 5,
   size = "md",
   readOnly = false,
-  allowHalf = true,
   allowZero = true,
 }: StarRatingProps) {
   const [hoverValue, setHoverValue] = useState(0);
@@ -35,23 +33,13 @@ export function StarRating({
 
   const starSize = sizes[size];
 
-  // Funkcja do określania wartości gwiazdki na podstawie pozycji kursora
   const calculateRating = (
     event: React.MouseEvent<HTMLButtonElement>,
     index: number,
   ) => {
-    if (!allowHalf) return index + 1;
-
-    const button = event.currentTarget;
-    const rect = button.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const halfWidth = rect.width / 2;
-
-    // Jeśli kursor jest w lewej połowie, zwróć wartość .5, w przeciwnym razie pełną wartość
-    return x < halfWidth ? index + 0.5 : index + 1;
+    return index + 1;
   };
 
-  // Funkcja do resetowania oceny do 0
   const clearRating = () => {
     if (!readOnly && allowZero) {
       onChange(0);
@@ -79,15 +67,10 @@ export function StarRating({
       {[...Array(max)].map((_, index) => {
         const starValue = index + 1;
         const isFullyFilled = readOnly
-          ? Math.floor(value) >= starValue
+          ? value >= starValue
           : hoverValue
-            ? Math.floor(hoverValue) >= starValue
-            : Math.floor(value) >= starValue;
-
-        const isHalfFilled = readOnly
-          ? !isFullyFilled && value >= index + 0.5
-          : !isFullyFilled &&
-            (hoverValue ? hoverValue >= index + 0.5 : value >= index + 0.5);
+            ? hoverValue >= starValue
+            : value >= starValue;
 
         return (
           <button
@@ -99,12 +82,12 @@ export function StarRating({
             )}
             onClick={(e) => !readOnly && onChange(calculateRating(e, index))}
             onMouseMove={(e) => {
-              if (!readOnly && allowHalf) {
+              if (!readOnly) {
                 setHoverValue(calculateRating(e, index));
               }
             }}
             onMouseEnter={() => {
-              if (!readOnly && !allowHalf) {
+              if (!readOnly) {
                 setHoverValue(index + 1);
               }
             }}
@@ -112,7 +95,6 @@ export function StarRating({
             disabled={readOnly}
             aria-label={`Ocena ${starValue} z ${max}`}
           >
-            {/* Pełna lub pusta gwiazdka */}
             <Star
               className={cn(
                 starSize,
@@ -122,18 +104,6 @@ export function StarRating({
                   : "fill-transparent text-muted-foreground",
               )}
             />
-
-            {/* Półgwiazdka - nakładka */}
-            {isHalfFilled && (
-              <div
-                className="absolute inset-0 overflow-hidden pointer-events-none"
-                style={{ width: "50%" }}
-              >
-                <Star
-                  className={cn(starSize, "fill-yellow-400 text-yellow-400")}
-                />
-              </div>
-            )}
           </button>
         );
       })}

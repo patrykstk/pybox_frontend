@@ -1,109 +1,41 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { getAnswersForTask } from "@/server/get-answers-for-task";
-import { Author } from "@/interfaces/author";
-
-interface User {
-  id: number;
-  name: string;
-  surname: string;
-}
-
-interface Answer {
-  id: number;
-  code: string;
-  output: string | null;
-  is_correct: boolean | null;
-  mark: number | null;
-  created_at: string;
-  updated_at: string;
-  user: User;
-}
-
-interface PaginationLink {
-  url: string | null;
-  label: string;
-  active: boolean;
-}
-
-interface ApiResponse {
-  status: string;
-  current_page: number;
-  data: Answer[];
-  first_page_url: string;
-  from: number;
-  last_page: number;
-  last_page_url: string;
-  links: PaginationLink[];
-  next_page_url: string | null;
-  path: string;
-  per_page: number;
-  prev_page_url: string | null;
-  to: number;
-  total: number;
-}
-
-interface Answer {
-  code: string;
-  output: string | null;
-  is_correct: boolean | null;
-  mark: number | null;
-  created_at: string;
-  user: Author;
-}
+import { Answer } from "@/interfaces/answer";
+import { ApiResponse } from "@/interfaces/api-response";
 
 interface Answers extends ApiResponse {
   data: Answer[];
 }
-
-export default function TestAnswers() {
+const TestAnswers = () => {
   const router = useRouter();
-  const params = useParams();
-  const { taskId } = params as { taskId: string };
+  const { taskId } = useParams() as { taskId: string };
 
-  const [loading, setLoading] = useState(true);
-  const [answers, setAnswers] = useState<Answers | null>(null);
-  const [currentPage, setCurrentPage] = useState(1);
-
-  useEffect(() => {
-    fetchAnswers(currentPage);
-  }, [currentPage]);
-
-  const fetchAnswers = async (page: number) => {
-    setLoading(true);
-    try {
-      const response = await getAnswersForTask(taskId);
-      setAnswers(response);
-    } catch (error) {
-      console.error("Error fetching answers:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
+  const {
+    data: answers,
+    isLoading,
+    isError,
+  } = useQuery<Answers>({
+    queryKey: ["answers", taskId],
+    queryFn: () => getAnswersForTask(taskId),
+  });
 
   const handleViewAnswer = (answer: Answer) => {
     router.push(`/tasks/${taskId}/answers/review/${answer.id}`);
   };
 
-  if (loading && !answers) {
-    return <LoadingSkeleton />;
-  }
-
-  if (!answers) {
+  if (isLoading) return <LoadingSkeleton />;
+  if (isError || !answers || answers.data.length === 0) {
     return (
       <div className="flex justify-center items-center h-[50vh]">
-        <p>Failed to load answers. Please try again.</p>
+        <p>Brak odpowiedzi dla tego zadania.</p>
       </div>
     );
   }
@@ -128,14 +60,14 @@ export default function TestAnswers() {
                 </tr>
               </thead>
               <tbody>
-                {answers.data.map((answer) => (
+                {answers.data.map((answer: Answer) => (
                   <tr key={answer.id} className="border-b hover:bg-muted/50">
                     <td className="py-3 px-4">
                       {answer.user.name} {answer.user.surname}
                     </td>
                     <td className="py-3 px-4">
                       {answer.is_correct === null ? (
-                        <Badge variant="outline">Oczekuje na ocene</Badge>
+                        <Badge variant="outline">Oczekuje na wykonanie</Badge>
                       ) : answer.is_correct ? (
                         <Badge variant="success">Correct</Badge>
                       ) : (
@@ -160,16 +92,6 @@ export default function TestAnswers() {
                     </td>
                   </tr>
                 ))}
-                {answers.data.length === 0 && (
-                  <tr>
-                    <td
-                      colSpan={5}
-                      className="py-8 text-center text-muted-foreground"
-                    >
-                      Nie znaleziono odpowiedzi
-                    </td>
-                  </tr>
-                )}
               </tbody>
             </table>
           </div>
@@ -177,7 +99,9 @@ export default function TestAnswers() {
       </Card>
     </div>
   );
-}
+};
+
+export default TestAnswers;
 
 function LoadingSkeleton() {
   return (
