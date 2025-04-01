@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -25,114 +26,74 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
-import { toast } from "sonner";
+
+import { useRouter } from "next/navigation";
+import { getModTasks } from "@/server/get-mod-tasks";
+import { deleteAnswer, getTaskAnswers } from "@/server/get-task-answers";
 
 export default function TaskAnswersPage() {
-  const [tasks, setTasks] = useState([]);
-  const [selectedTask, setSelectedTask] = useState(null);
-  const [answers, setAnswers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+  const queryClient = useQueryClient();
   const router = useRouter();
 
-  // Fetch tasks on component mount
-  useEffect(() => {
-    const fetchTasks = async () => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          router.push("/login");
-          return;
-        }
+  // Query for fetching tasks
+  const {
+    data: tasksData,
+    isLoading: isTasksLoading,
+    error: tasksError,
+  } = useQuery({
+    queryKey: ["tasks"],
+    queryFn: async () => {
+      const result = await getModTasks();
+      return result;
+    },
+  });
 
-        const response = await fetch("/api/tasks", {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
+  // Set the first task as selected when data is loaded
+  useEffect(() => {
+    if (tasksData?.data?.length && !selectedTaskId) {
+      setSelectedTaskId(tasksData.data[0].id);
+    }
+  }, [tasksData, selectedTaskId]);
+
+  // Query for fetching answers for the selected task
+  const { data: answersData, isLoading: isAnswersLoading } = useQuery({
+    queryKey: ["answers", selectedTaskId],
+    queryFn: async () => {
+      if (!selectedTaskId) return null;
+      return getTaskAnswers(selectedTaskId);
+    },
+    enabled: !!selectedTaskId,
+  });
+
+  // Mutation for deleting an answer
+  const deleteMutation = useMutation({
+    mutationFn: (answerId: number) => deleteAnswer(answerId),
+    onSuccess: (data, answerId) => {
+      if (data?.status === "success") {
+        // Invalidate the answers query to refetch
+        queryClient.invalidateQueries({
+          queryKey: ["answers", selectedTaskId],
         });
 
-        const data = await response.json();
-
-        if (data.status === "success") {
-          setTasks(data.data);
-          if (data.data.length > 0) {
-            setSelectedTask(data.data[0].id);
-          }
-        } else {
-          setError(data.message || "Failed to fetch tasks");
-        }
-      } catch (err) {
-        setError("An error occurred while fetching tasks");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTasks();
-  }, [router]);
-
-  useEffect(() => {
-    const fetchAnswers = async () => {
-      if (!selectedTask) return;
-
-      try {
-        setLoading(true);
-        const token = localStorage.getItem("token");
-
-        const response = await fetch(`/api/task/${selectedTask}/answers`, {
-          headers: {
-            Accept: "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const data = await response.json();
-
-        if (data.status === "success") {
-          setAnswers(data.data);
-        } else {
-          setError(data.message || "Failed to fetch answers");
-        }
-      } catch (err) {
-        setError("An error occurred while fetching answers");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchAnswers();
-  }, [selectedTask]);
-
-  const handleDeleteAnswer = async (answerId) => {
-    try {
-      const token = localStorage.getItem("token");
-
-      const response = await fetch(`/api/answer/${answerId}`, {
-        method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (data.status === "success") {
-        setAnswers(answers.filter((answer) => answer.id !== answerId));
         toast.success("Answer deleted successfully");
       } else {
-        toast.error(data.message || "Failed to delete answer");
+        toast.error(data?.message || "Failed to delete answer");
       }
-    } catch (err) {
+    },
+    onError: (error) => {
       toast.error("An error occurred while deleting the answer");
-      console.error(err);
-    }
+      console.error(error);
+    },
+  });
+
+  const handleDeleteAnswer = (answerId: number) => {
+    deleteMutation.mutate(answerId);
   };
 
-  if (loading && tasks.length === 0) {
+  const tasks = tasksData?.data || [];
+
+  if (isTasksLoading && !tasksData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
@@ -143,7 +104,7 @@ export default function TaskAnswersPage() {
     );
   }
 
-  if (error && tasks.length === 0) {
+  if (tasksError) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Card className="w-full max-w-md">
@@ -151,7 +112,7 @@ export default function TaskAnswersPage() {
             <CardTitle className="text-destructive">Error</CardTitle>
           </CardHeader>
           <CardContent>
-            <p>{error}</p>
+            <p>Failed to load tasks</p>
             <Button
               className="mt-4 w-full"
               onClick={() => window.location.reload()}
@@ -176,8 +137,8 @@ export default function TaskAnswersPage() {
         </Card>
       ) : (
         <Tabs
-          defaultValue={selectedTask?.toString()}
-          onValueChange={(value) => setSelectedTask(Number.parseInt(value))}
+          value={selectedTaskId?.toString()}
+          onValueChange={(value) => setSelectedTaskId(Number.parseInt(value))}
           className="w-full"
         >
           <TabsList className="mb-4 flex flex-wrap h-auto">
@@ -204,14 +165,14 @@ export default function TaskAnswersPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  {loading ? (
+                  {isAnswersLoading ? (
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                       <p className="mt-2 text-sm text-muted-foreground">
                         Loading answers...
                       </p>
                     </div>
-                  ) : answers.length === 0 ? (
+                  ) : !answersData?.data || answersData.data.length === 0 ? (
                     <p className="text-center py-8 text-muted-foreground">
                       No answers for this task yet
                     </p>
@@ -229,7 +190,7 @@ export default function TaskAnswersPage() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {answers.map((answer) => (
+                        {answersData.data.map((answer) => (
                           <TableRow key={answer.id}>
                             <TableCell>
                               {answer.user.name} {answer.user.surname}
