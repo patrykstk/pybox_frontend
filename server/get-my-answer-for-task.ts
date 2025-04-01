@@ -4,6 +4,7 @@ import api from "@/lib/api";
 import { ApiResponse } from "@/interfaces/api-response";
 
 interface MyAnswer extends ApiResponse {
+  id: number;
   code: string;
   output: string | null;
   is_correct: boolean | null;

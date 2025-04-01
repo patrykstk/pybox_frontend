@@ -24,7 +24,11 @@ const difficultyColors: Record<Difficulty, string> = {
   [Difficulty.Insane]: "bg-red-700 text-red-300 hover:bg-red-900",
 };
 
-const DifficultySelector = () => {
+interface DifficultySelectorProps {
+  disabled?: boolean;
+}
+
+const DifficultySelector = ({ disabled }: DifficultySelectorProps) => {
   const { register, setValue, watch } = useFormContext();
   const selectedDifficulty = watch("level");
 
@@ -41,14 +45,16 @@ const DifficultySelector = () => {
               isActive
                 ? difficultyColors[level]
                 : "border border-white text-white hover:bg-white hover:text-black",
+              disabled && "opacity-50 cursor-not-allowed",
             )}
-            onClick={() => setValue("level", level)}
+            onClick={() => !disabled && setValue("level", level)}
+            disabled={disabled}
           >
             {difficultyLabels[level]}
           </Button>
         );
       })}
-      <Input type="hidden" {...register("level")} />
+      <Input type="hidden" {...register("level")} disabled={disabled} />
     </div>
   );
 };

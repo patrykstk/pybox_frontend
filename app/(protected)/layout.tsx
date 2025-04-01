@@ -18,9 +18,7 @@ const ProtectedLayout = async ({ children }: ProtectedLayoutProps) => {
       <main className="flex flex-col w-full">
         <LayoutNavigation />
         <div className="p-3">
-          <div className="bg-accent h-full w-full rounded-lg px-4 py-2">
-            {children}
-          </div>
+          <div className="h-full w-full rounded-lg px-4 py-2">{children}</div>
         </div>
       </main>
     </SidebarProvider>

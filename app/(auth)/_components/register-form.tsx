@@ -3,7 +3,7 @@
 import { registerSchema } from "@/schemas/register-schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import type { z } from "zod";
 import {
   Form,
   FormControl,
@@ -16,16 +16,35 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
-import { LoaderCircle } from "lucide-react";
+import { AlertCircle, CheckCircle, LoaderCircle } from "lucide-react";
 import { register } from "@/server/register";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
     setIsLoading(true);
-    await register(values);
-    setIsLoading(false);
+    setSuccess(null);
+    setError(null);
+
+    try {
+      await register(values);
+      setSuccess(
+        "Konto zostało pomyślnie utworzone! Możesz się teraz zalogować.",
+      );
+      form.reset();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Wystąpił błąd podczas rejestracji. Spróbuj ponownie później.",
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const form = useForm<z.infer<typeof registerSchema>>({
@@ -42,6 +61,24 @@ const RegisterForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        {success && (
+          <Alert className="bg-green-50 border-green-200">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <AlertTitle className="text-green-800">Sukces!</AlertTitle>
+            <AlertDescription className="text-green-700">
+              {success}
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {error && (
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertTitle>Błąd</AlertTitle>
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-2 gap-x-3 gap-y-4">
           <FormField
             control={form.control}

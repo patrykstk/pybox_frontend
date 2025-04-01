@@ -2,8 +2,8 @@ import { ChangePassword } from "@/app/(protected)/settings/_components/change-pa
 
 const SettingsPage = () => {
   return (
-    <div className="flex flex-col">
-      <h1>Zmiana hasła</h1>
+    <div className="flex flex-col w-full space-y-5">
+      <h1 className="text-5xl uppercase font-bold">Zmiana hasła</h1>
       <ChangePassword />
     </div>
   );

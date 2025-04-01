@@ -89,7 +89,6 @@ const ManageRoles = () => {
 
   return (
     <>
-      <Toaster position="top-center" />
       <Card className="w-full max-w-md mx-auto">
         <CardHeader>
           <CardTitle>Zarządzanie rolami</CardTitle>
@@ -110,8 +109,8 @@ const ManageRoles = () => {
                     <FormLabel>Operacja</FormLabel>
                     <FormControl>
                       <Select
+                        value={field.value}
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Wybierz operację" />

@@ -2,6 +2,9 @@ import { getTaskWithId } from "@/server/get-task-with-id";
 import { SolveForm } from "@/app/(protected)/tasks/_components/solve-form";
 import { getUserData } from "@/server/get-user-data";
 import { getMyAnswerForTask } from "@/server/get-my-answer-for-task";
+import { DisableOwnTest } from "@/app/(protected)/tasks/_components/disable-own-test";
+import { TestGrade } from "@/app/(protected)/tasks/_components/test-grade";
+import { TaskNotFound } from "@/app/(protected)/tasks/_components/task-not-found";
 
 const SolveTaskPage = async ({
   params,
@@ -15,18 +18,17 @@ const SolveTaskPage = async ({
   const answer = await getMyAnswerForTask(taskId);
 
   if (answer && answer.status === "success") {
-    return (
-      <div>Już raz rozwiązałeś to zadanie. Otrzymałeś ocenę {answer.mark}</div>
-    );
+    return <TestGrade mark={answer.mark} />;
   }
 
   if (task && user && Number(task.created_by.id) === user.id)
-    return <div>co ty nie mozesz wykonac wlasnego zadania!</div>;
+    return <DisableOwnTest />;
 
-  if (!task) return <div>pusto</div>;
+  if (!task) return <TaskNotFound />;
+
   return (
-    <div>
-      <div>Raz raz, rozwiązuj mi tu czas operacji 5 minut.</div>
+    <div className="flex flex-col w-full space-y-5">
+      <h1 className="text-5xl uppercase font-bold">Rozwiązywanie zadania</h1>
       <SolveForm task={task} />
     </div>
   );

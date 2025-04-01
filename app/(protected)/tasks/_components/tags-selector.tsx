@@ -4,14 +4,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, X } from "lucide-react";
 
-const TagsSelector = () => {
+interface TagsSelectorProps {
+  disabled?: boolean;
+}
+
+const TagsSelector = ({ disabled }: TagsSelectorProps) => {
   const { register, setValue, watch } = useFormContext();
   const tags: string[] = watch("tags", []);
   const [inputVisible, setInputVisible] = useState<boolean>(false);
   const [inputValue, setInputValue] = useState<string>("");
 
   const addTag = () => {
-    if (inputValue.trim()) {
+    if (inputValue.trim() && !disabled) {
       setValue("tags", [...tags, inputValue.trim()]);
       setInputValue("");
       setInputVisible(false);
@@ -19,6 +23,7 @@ const TagsSelector = () => {
   };
 
   const removeTag = (index: number) => {
+    if (disabled) return;
     setValue(
       "tags",
       tags.filter((_: string, i: number) => i !== index),
@@ -33,13 +38,16 @@ const TagsSelector = () => {
           className="flex items-center gap-1 px-3 bg-yellow-300 rounded-full text-gray-600"
         >
           <span>{tag}</span>
-          <Button
-            variant="link"
-            onClick={() => removeTag(index)}
-            className="text-gray-600 hover:text-red-500"
-          >
-            <X size={14} />
-          </Button>
+          {!disabled && (
+            <Button
+              variant="link"
+              onClick={() => removeTag(index)}
+              className="text-gray-600 hover:text-red-500"
+              disabled={disabled}
+            >
+              <X size={14} />
+            </Button>
+          )}
         </div>
       ))}
       {inputVisible ? (
@@ -50,26 +58,29 @@ const TagsSelector = () => {
             onKeyDown={(e) => e.key === "Enter" && addTag()}
             autoFocus
             className="w-32"
+            disabled={disabled}
           />
           <Button
             onClick={addTag}
             variant={"ghost"}
             className="transition-all ease-in duration-200"
+            disabled={disabled}
           >
             OK
           </Button>
         </div>
       ) : (
         <Button
-          onClick={() => setInputVisible(true)}
+          onClick={() => !disabled && setInputVisible(true)}
           variant="ghost"
-          className="transition-all ease-in duration-200 flex gap-x-2 bg-black text-white hover:bg-black/75 hover:text-white"
+          className="transition-all ease-in duration-200 flex gap-x-2 bg-black text-white hover:bg-black/75 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed"
+          disabled={disabled}
         >
           <span>Dodaj</span>
           <Plus size={16} />
         </Button>
       )}
-      <input type="hidden" {...register("tags")} />
+      <input type="hidden" {...register("tags")} disabled={disabled} />
     </div>
   );
 };

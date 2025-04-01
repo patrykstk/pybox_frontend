@@ -30,7 +30,9 @@ api.interceptors.request.use(
         console.error("Error decrypting token:", error);
       }
     } else {
-      console.warn("No token found, API request without authorization!");
+      console.warn(
+        "No token found, API request without authorization! Probably logging in or on registration",
+      );
     }
 
     return config;

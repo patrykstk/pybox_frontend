@@ -12,9 +12,11 @@ import { Form } from "@/components/ui/form";
 import { Task } from "@/interfaces/task";
 import { answerTask } from "@/server/answer-task";
 import { answerSchema } from "@/schemas/answer-schema";
+import { useState } from "react";
 
 const SolveForm = ({ task }: { task: Task }) => {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { id, title, content, input, code, level, tags } = task;
 
@@ -26,19 +28,17 @@ const SolveForm = ({ task }: { task: Task }) => {
   });
 
   async function onSubmit(values: z.infer<typeof answerSchema>) {
+    setIsSubmitting(true);
     const response = await answerTask(values, id);
 
     if (response) router.push("/home");
-    console.log(values);
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <h1 className="text-3xl">
-          Rozwiązywanie zadania: <span className="font-extrabold">{title}</span>
-        </h1>
-        <p>{content}</p>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <h1 className="text-3xl">Zadanie pod tytułem: {title}</h1>
+        <p className="text-lg">{content}</p>
         <Editor
           language="python"
           defaultLanguage="python"
@@ -49,8 +49,12 @@ const SolveForm = ({ task }: { task: Task }) => {
           onChange={(value) => form.setValue("code", value || "")}
         />
 
-        <Button className="bg-emerald-500 mb-10" type="submit">
-          Prześlij odpowiedź
+        <Button
+          className="bg-emerald-500 mb-10"
+          type="submit"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Przekierowywanie..." : "Prześlij odpowiedź"}
         </Button>
       </form>
     </Form>

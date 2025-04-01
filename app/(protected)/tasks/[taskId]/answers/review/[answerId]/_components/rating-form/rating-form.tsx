@@ -42,10 +42,7 @@ const RatingForm = ({
     >
       <div>
         <label className="block font-medium mb-2">Twoja ocena:</label>
-        <StarSelector value={rating} onChange={setRating} allowHalf />
-        <p className="text-xs text-muted-foreground mt-1">
-          Kliknij na lewą połowę gwiazdki dla oceny połówkowej (np. 1.5, 2.5)
-        </p>
+        <StarSelector value={rating} onChange={setRating} />
       </div>
 
       <Button type="submit" disabled={mutation.isPending} className="w-full">

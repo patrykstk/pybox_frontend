@@ -2,6 +2,7 @@ interface TaskDetailsProps {
   task: { title: string; content: string } | null;
   answer: {
     user: { name: string; surname: string };
+    code: string;
     created_at: string;
   } | null;
 }
@@ -27,6 +28,10 @@ const TaskDetails = ({ task, answer }: TaskDetailsProps) => {
         <h4 className="font-medium mb-2">Treść zadania:</h4>
         <div className="bg-muted p-4 rounded-md">
           <p>{task.content}</p>
+        </div>
+        <h4 className="font-medium mb-2">Przesłany kod:</h4>
+        <div className="bg-muted p-4 rounded-md">
+          <p>{answer.code}</p>
         </div>
       </div>
     </div>

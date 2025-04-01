@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { z } from "zod";
+import type { z } from "zod";
 import { taskSchema } from "@/schemas/task-schema";
 import { Input } from "@/components/ui/input";
 import { DifficultySelector } from "@/app/(protected)/tasks/_components/difficulty-selector";
@@ -15,9 +15,12 @@ import { useForm } from "react-hook-form";
 import { createTask } from "@/server/create-task";
 import { Form } from "@/components/ui/form";
 import { TaskField } from "@/app/(protected)/tasks/_components/task";
+import { useState } from "react";
+import { LoaderCircle } from "lucide-react";
 
 const CreateForm = () => {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof taskSchema>>({
     resolver: zodResolver(taskSchema),
@@ -32,10 +35,15 @@ const CreateForm = () => {
   });
 
   async function onSubmit(values: z.infer<typeof taskSchema>) {
-    const response = await createTask(values);
-
-    if (response) router.push("/home");
-    console.log(values);
+    setIsSubmitting(true);
+    try {
+      const response = await createTask(values);
+      if (response) router.push("/home");
+    } catch (error) {
+      console.error("Error creating task:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -49,7 +57,7 @@ const CreateForm = () => {
             name="title"
             required
           >
-            <Input />
+            <Input disabled={isSubmitting} />
           </TaskField>
           <TaskField
             index={2}
@@ -58,10 +66,10 @@ const CreateForm = () => {
             name="level"
             required
           >
-            <DifficultySelector />
+            <DifficultySelector disabled={isSubmitting} />
           </TaskField>
           <TaskField index={3} title="Tagi" name="tags">
-            <TagsSelector />
+            <TagsSelector disabled={isSubmitting} />
           </TaskField>
           <TaskField
             index={4}
@@ -70,7 +78,7 @@ const CreateForm = () => {
             name="content"
             required
           >
-            <Textarea className="min-h-24" />
+            <Textarea className="min-h-24" disabled={isSubmitting} />
           </TaskField>
           <TaskField
             index={5}
@@ -78,7 +86,7 @@ const CreateForm = () => {
             description="Jeżeli są, to należy je oddzielić średnikiem ;"
             name="input"
           >
-            <Input />
+            <Input disabled={isSubmitting} />
           </TaskField>
 
           <TaskField
@@ -94,10 +102,22 @@ const CreateForm = () => {
               theme="vs-dark"
               className="h-72 w-full"
               loading={<LoadingSpinner />}
+              options={{ readOnly: isSubmitting }}
             />
           </TaskField>
-          <Button className="bg-emerald-500 mb-10" type="submit">
-            Zapisz test
+          <Button
+            className="bg-emerald-500 mb-10 hover:bg-emerald-600"
+            type="submit"
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? (
+              <>
+                <LoaderCircle className="mr-2 h-4 w-4 animate-spin" />
+                Zapisywanie...
+              </>
+            ) : (
+              "Zapisz test"
+            )}
           </Button>
         </div>
       </form>

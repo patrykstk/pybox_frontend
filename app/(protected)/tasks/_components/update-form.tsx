@@ -38,9 +38,7 @@ const UpdateForm = ({ task }: { task: Task }) => {
 
   async function onSubmit(values: z.infer<typeof taskSchema>) {
     const response = await updateTask(values, id);
-
     if (response) router.push("/home");
-    console.log(values);
   }
 
   async function onDelete() {
