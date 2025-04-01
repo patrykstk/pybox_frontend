@@ -17,6 +17,7 @@ import { Form } from "@/components/ui/form";
 import { TaskField } from "@/app/(protected)/tasks/_components/task";
 import { useState } from "react";
 import { LoaderCircle } from "lucide-react";
+import { defaultCode } from "@/constants/default-code";
 
 const CreateForm = () => {
   const router = useRouter();
@@ -30,7 +31,7 @@ const CreateForm = () => {
       tags: [],
       content: "",
       input: "",
-      code: "",
+      code: defaultCode,
     },
   });
 
@@ -101,6 +102,7 @@ const CreateForm = () => {
               defaultLanguage="python"
               theme="vs-dark"
               className="h-72 w-full"
+              defaultValue={defaultCode}
               loading={<LoadingSpinner />}
               options={{ readOnly: isSubmitting }}
             />

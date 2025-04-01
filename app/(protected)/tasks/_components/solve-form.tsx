@@ -13,17 +13,18 @@ import { Task } from "@/interfaces/task";
 import { answerTask } from "@/server/answer-task";
 import { answerSchema } from "@/schemas/answer-schema";
 import { useState } from "react";
+import { defaultCode } from "@/constants/default-code";
 
 const SolveForm = ({ task }: { task: Task }) => {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const { id, title, content, input, code, level, tags } = task;
+  const { id, title, content } = task;
 
   const form = useForm<z.infer<typeof answerSchema>>({
     resolver: zodResolver(answerSchema),
     defaultValues: {
-      code: code,
+      code: defaultCode,
     },
   });
 
@@ -43,6 +44,7 @@ const SolveForm = ({ task }: { task: Task }) => {
           language="python"
           defaultLanguage="python"
           theme="vs-dark"
+          defaultValue={defaultCode}
           className="h-72 w-full"
           loading={<LoadingSpinner />}
           value={form.watch("code")}
