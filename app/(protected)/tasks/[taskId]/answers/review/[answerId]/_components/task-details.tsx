@@ -1,3 +1,6 @@
+import { LoadingSpinner } from "@/app/(protected)/tasks/_components/loading-spinner";
+import { Editor } from "@monaco-editor/react";
+
 interface TaskDetailsProps {
   task: { title: string; content: string } | null;
   answer: {
@@ -31,7 +34,15 @@ const TaskDetails = ({ task, answer }: TaskDetailsProps) => {
         </div>
         <h4 className="font-medium mb-2">Przesłany kod:</h4>
         <div className="bg-muted p-4 rounded-md">
-          <p>{answer.code}</p>
+          <Editor
+            language="python"
+            defaultLanguage="python"
+            theme="vs-dark"
+            options={{ domReadOnly: true, readOnly: true }}
+            defaultValue={answer.code}
+            className="h-72 w-full"
+            loading={<LoadingSpinner />}
+          />
         </div>
       </div>
     </div>
