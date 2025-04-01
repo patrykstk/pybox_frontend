@@ -12,6 +12,7 @@ interface ProtectedLayoutProps {
 const ProtectedLayout = async ({ children }: ProtectedLayoutProps) => {
   const session = await getSession();
   if (!session) redirect("/login");
+
   return (
     <SidebarProvider>
       <LayoutSidebar />

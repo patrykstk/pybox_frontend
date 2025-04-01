@@ -31,7 +31,6 @@ const SettingsButton = () => {
     setLoading(true);
     try {
       await logout();
-      router.push("/login");
     } catch (err) {
       console.error("Logout failed:", err);
     } finally {
@@ -56,7 +55,7 @@ const SettingsButton = () => {
         {status === "success" && user && user.roles.includes("manager") ? (
           <DropdownMenuItem
             onClick={handleRoleChange}
-            className="hover:cursor-pointer hover:bg-gray-100"
+            className="hover:cursor-pointer hover:bg-gray-100 hover:font-bold transition-all duration-200"
             disabled={loading}
           >
             Zmień role
@@ -66,7 +65,7 @@ const SettingsButton = () => {
         )}
         <DropdownMenuItem
           onClick={handlePasswordChange}
-          className="hover:cursor-pointer hover:bg-gray-100"
+          className="hover:cursor-pointer hover:bg-gray-100 hover:font-bold transition-all duration-200"
           disabled={loading}
         >
           Zmień hasło
@@ -75,7 +74,7 @@ const SettingsButton = () => {
           className={`flex flex-row items-center text-red-400 ${
             loading
               ? "cursor-not-allowed opacity-50"
-              : "hover:bg-red-500/40 hover:cursor-pointer"
+              : "hover:font-bold hover:cursor-pointer"
           }`}
           onClick={handleLogout}
           disabled={loading}
@@ -83,9 +82,9 @@ const SettingsButton = () => {
           {loading ? (
             <span>Logging out...</span>
           ) : (
-            <>
-              <LogOut /> Logout
-            </>
+            <div className="flex flex-row gap-x-2 text-red-500 items-center">
+              <LogOut className="text-red-500" /> Logout
+            </div>
           )}
         </DropdownMenuItem>
       </DropdownMenuContent>

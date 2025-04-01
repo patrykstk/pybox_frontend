@@ -58,7 +58,9 @@ const TaskTableContent = ({ tasks, variant }: TaskTableContentProps) => {
                   {variant === "edit" ? (
                     <span>Ty</span>
                   ) : (
-                    <span>{task.created_by.name}</span>
+                    <span>
+                      {task.created_by.name} {task.created_by.surname}
+                    </span>
                   )}
                 </TableCell>
                 <TableCell>{formatDate(task.updated_at)}</TableCell>

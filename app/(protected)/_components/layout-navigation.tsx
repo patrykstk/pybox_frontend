@@ -5,12 +5,11 @@ import { SettingsButton } from "@/app/(protected)/_components/settings-button";
 
 const LayoutNavigation = () => {
   return (
-    <div className="w-full flex flex-row gap-x-2 items-center bg-accent py-3 px-3 justify-between">
+    <div className="w-full flex flex-row gap-x-2 items-center bg-accent py-5     px-3 justify-between">
       <div>
         <SidebarTrigger className="cursor-pointer" />
-        <div className="w-[1.5px] h-full bg-black" />
       </div>
-      <div className="flex flex-row gap-x-3">
+      <div className="flex flex-row gap-x-5">
         <Profile />
         <SettingsButton />
       </div>

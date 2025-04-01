@@ -11,13 +11,13 @@ const Profile = async () => {
     `${user.name.charAt(0)}${user.surname.charAt(0)}`.toUpperCase();
 
   return (
-    <div className="flex flex-row gap-x-2 items-center">
+    <div className="flex flex-row gap-x-3 items-center">
       <Avatar>
-        <AvatarFallback className="border border-black">
+        <AvatarFallback className="border border-black p-2">
           {initials}
         </AvatarFallback>
       </Avatar>
-      <span className="font-normal text-lg">
+      <span className="font-medium text-lg">
         {user.name} {user.surname}
       </span>
     </div>
