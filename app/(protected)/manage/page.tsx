@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -30,13 +30,20 @@ import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getModTasks } from "@/server/get-mod-tasks";
 import { deleteAnswer, getTaskAnswers } from "@/server/get-task-answers";
+import { DifficultyBadge } from "@/app/(protected)/tasks/_components/task-table/difficulty-badge";
+import { getUserData } from "@/server/get-user-data";
+import Forbidden from "@/components/forbidden";
 
 export default function TaskAnswersPage() {
-  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const router = useRouter();
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
-  // Query for fetching tasks
+  const { data: userData, isLoading: isLoadingUser } = useQuery({
+    queryKey: ["userData"],
+    queryFn: () => getUserData(),
+  });
+
   const {
     data: tasksData,
     isLoading: isTasksLoading,
@@ -49,14 +56,12 @@ export default function TaskAnswersPage() {
     },
   });
 
-  // Set the first task as selected when data is loaded
   useEffect(() => {
     if (tasksData?.data?.length && !selectedTaskId) {
       setSelectedTaskId(tasksData.data[0].id);
     }
   }, [tasksData, selectedTaskId]);
 
-  // Query for fetching answers for the selected task
   const { data: answersData, isLoading: isAnswersLoading } = useQuery({
     queryKey: ["answers", selectedTaskId],
     queryFn: async () => {
@@ -66,23 +71,21 @@ export default function TaskAnswersPage() {
     enabled: !!selectedTaskId,
   });
 
-  // Mutation for deleting an answer
   const deleteMutation = useMutation({
     mutationFn: (answerId: number) => deleteAnswer(answerId),
     onSuccess: (data, answerId) => {
       if (data?.status === "success") {
-        // Invalidate the answers query to refetch
         queryClient.invalidateQueries({
           queryKey: ["answers", selectedTaskId],
         });
 
-        toast.success("Answer deleted successfully");
+        toast.success("Pomyślnie usunięto odpowiedź");
       } else {
-        toast.error(data?.message || "Failed to delete answer");
+        toast.error(data?.message || "Błąd podczas usuwania odpowiedzi");
       }
     },
     onError: (error) => {
-      toast.error("An error occurred while deleting the answer");
+      toast.error("Błąd podczas usuwania");
       console.error(error);
     },
   });
@@ -93,12 +96,21 @@ export default function TaskAnswersPage() {
 
   const tasks = tasksData?.data || [];
 
+  if (
+    !isLoadingUser &&
+    userData &&
+    !userData.roles.includes("manager") &&
+    !userData.roles.includes("moderator")
+  ) {
+    return <Forbidden />;
+  }
+
   if (isTasksLoading && !tasksData) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading tasks...</p>
+          <p className="mt-4 text-muted-foreground">Ładowanie zadań...</p>
         </div>
       </div>
     );
@@ -117,7 +129,7 @@ export default function TaskAnswersPage() {
               className="mt-4 w-full"
               onClick={() => window.location.reload()}
             >
-              Try Again
+              Spróbuj ponownie
             </Button>
           </CardContent>
         </Card>
@@ -127,12 +139,14 @@ export default function TaskAnswersPage() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <h1 className="text-3xl font-bold mb-6">Task Answers</h1>
+      <h1 className="text-3xl font-bold mb-6">Odpowiedzi do zadań</h1>
 
       {tasks.length === 0 ? (
         <Card>
           <CardContent className="pt-6">
-            <p className="text-center text-muted-foreground">No tasks found</p>
+            <p className="text-center text-muted-foreground">
+              Nie znaleziono żadnych zadań
+            </p>
           </CardContent>
         </Card>
       ) : (
@@ -160,7 +174,13 @@ export default function TaskAnswersPage() {
                   <CardTitle>
                     {task.title}
                     <span className="ml-2 text-sm font-normal text-muted-foreground">
-                      ({task.level})
+                      <DifficultyBadge
+                        text={
+                          task.level.charAt(0).toUpperCase() +
+                          task.level.slice(1)
+                        }
+                        variant={task.level}
+                      />
                     </span>
                   </CardTitle>
                 </CardHeader>
@@ -169,12 +189,12 @@ export default function TaskAnswersPage() {
                     <div className="text-center py-8">
                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
                       <p className="mt-2 text-sm text-muted-foreground">
-                        Loading answers...
+                        Ładuje odpowiedzi..
                       </p>
                     </div>
                   ) : !answersData?.data || answersData.data.length === 0 ? (
                     <p className="text-center py-8 text-muted-foreground">
-                      No answers for this task yet
+                      Jeszcze nikt tego zadania nie zrobił.
                     </p>
                   ) : (
                     <Table>
@@ -203,14 +223,14 @@ export default function TaskAnswersPage() {
                             </TableCell>
                             <TableCell>
                               {answer.is_correct === null
-                                ? "Pending"
+                                ? "Oczekuje"
                                 : answer.is_correct
-                                  ? "Yes"
-                                  : "No"}
+                                  ? "Tak"
+                                  : "Nie"}
                             </TableCell>
                             <TableCell>
                               {answer.mark === null
-                                ? "Not graded"
+                                ? "Brak oceny"
                                 : answer.mark}
                             </TableCell>
                             <TableCell>
@@ -226,16 +246,16 @@ export default function TaskAnswersPage() {
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
-                                      Delete Answer
+                                      Usuwanie odpowiedzi
                                     </AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to delete this
-                                      answer? This action cannot be undone.
+                                      Czy napewno chcesz usunąć odpowiedź tego
+                                      użytkownika?
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>
-                                      Cancel
+                                      Anuluj
                                     </AlertDialogCancel>
                                     <AlertDialogAction
                                       onClick={() =>
@@ -243,7 +263,7 @@ export default function TaskAnswersPage() {
                                       }
                                       className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                     >
-                                      Delete
+                                      Usuń
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
