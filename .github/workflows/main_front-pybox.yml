@@ -10,15 +10,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: read # This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Bun
-        run: |
-          curl -fsSL https://bun.sh/install | bash
-          export PATH="$HOME/.bun/bin:$PATH"
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest  # This installs the latest version of Bun
 
       - name: Install dependencies with Bun
         run: |
@@ -26,7 +26,7 @@ jobs:
 
       - name: Build the app with Bun
         run: |
-          bun run build 
+          bun run build  
 
       - name: Zip artifact for deployment
         run: zip -r release.zip .next static package.json posts
@@ -43,7 +43,7 @@ jobs:
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
