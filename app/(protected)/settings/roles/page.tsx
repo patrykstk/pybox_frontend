@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic";
+
 import { ManageRoles } from "@/app/(protected)/settings/_components/manage-roles";
 import { getUserData } from "@/server/get-user-data";
 import Forbidden from "@/components/forbidden";

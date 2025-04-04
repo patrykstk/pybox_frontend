@@ -23,7 +23,7 @@ const SubmittedForm = ({ rating, onGoBack }: SubmittedCardProps) => (
     <CardContent>
       <div className="flex items-center gap-2 mb-4">
         <span className="font-medium">Twoja ocena:</span>
-        <StarSelector value={rating} onChange={() => {}} readOnly allowHalf />
+        <StarSelector value={rating} onChange={() => {}} readOnly />
       </div>
     </CardContent>
     <CardFooter>
