@@ -22,15 +22,9 @@ api.interceptors.request.use(
 
     const token = await getToken();
     if (token) {
-      try {
-        config.headers.Authorization = `Bearer ${token}`;
-      } catch (error) {
-        console.error("Error decrypting token:", error);
-      }
+      config.headers.Authorization = `Bearer ${token}`;
     } else {
-      console.warn(
-        "No token found, API request without authorization! Probably logging in or on registration",
-      );
+      console.warn("Brak tokenu do autoryzacji!");
     }
 
     return config;
