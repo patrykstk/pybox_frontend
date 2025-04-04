@@ -3,7 +3,6 @@
 import * as z from "zod";
 import { loginSchema } from "@/schemas/login-schema";
 import api from "@/lib/api";
-import { encrypt } from "@/lib/session";
 import { cookies } from "next/headers";
 
 const login = async (values: z.infer<typeof loginSchema>) => {
@@ -32,12 +31,9 @@ const login = async (values: z.infer<typeof loginSchema>) => {
       const token = response.data.token;
       const expires = new Date(Date.now() + 60 * 60 * 10000);
 
-      console.log("Encrypting session...");
-      const encryptedToken = await encrypt({ token, expires });
-
       console.log("Storing token in cookies...");
       const cookieStore = await cookies();
-      cookieStore.set("sessionToken", encryptedToken, {
+      cookieStore.set("sessionToken", token, {
         expires,
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
