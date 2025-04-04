@@ -2,7 +2,7 @@
 
 import api from "@/lib/api";
 import { GetTaskProps } from "@/interfaces/requests/get-task-props";
-import { Task } from "@/interfaces/task";
+import { Task } from "@/interfaces/models/task";
 import axios from "axios";
 
 const getTaskWithId = async (taskId: string): Promise<Task | null> => {

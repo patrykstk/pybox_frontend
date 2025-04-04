@@ -1,5 +1,5 @@
 import { level } from "@/types/level";
-import { Author } from "@/interfaces/author";
+import { Author } from "@/interfaces/models/author";
 
 export interface Task {
   id: number;

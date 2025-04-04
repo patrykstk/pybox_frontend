@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
 import { getAnswersForTask } from "@/server/get-answers-for-task";
-import { Answer } from "@/interfaces/answer";
+import { Answer } from "@/interfaces/models/answer";
 import { ApiResponse } from "@/interfaces/api-response";
 
 interface Answers extends ApiResponse {

@@ -31,7 +31,8 @@ const getMyTasks = async (
     const response = await api.get<GetTasksProps>(
       `/user/${userID}/tasks?` + queryString,
     );
-    return response.data;
+    const data = response.data;
+    return { ...data, data: data.data || [] };
   } catch (error) {
     console.error("Błąd pobierania zadań:", error);
     return null;

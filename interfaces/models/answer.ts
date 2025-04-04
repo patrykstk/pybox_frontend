@@ -1,4 +1,4 @@
-import { Author } from "@/interfaces/author";
+import { Author } from "@/interfaces/models/author";
 
 export interface Answer {
   id: number;

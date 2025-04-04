@@ -15,7 +15,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 
-import { Task } from "@/interfaces/task";
+import { Task } from "@/interfaces/models/task";
 import { updateTask } from "@/server/update-task";
 import { deleteTask } from "@/server/delete-task";
 

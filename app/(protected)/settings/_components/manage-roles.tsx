@@ -30,7 +30,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
 
 const FormSchema = z.object({

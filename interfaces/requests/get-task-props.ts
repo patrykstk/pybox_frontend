@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/interfaces/api-response";
-import { Author } from "@/interfaces/author";
+import { Author } from "@/interfaces/models/author";
 import { level } from "@/types/level";
 
 export interface GetTaskProps extends ApiResponse {

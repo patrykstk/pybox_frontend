@@ -30,7 +30,7 @@ const TaskField = ({
   name,
   isSubtitle = false,
   required = false,
-}: TaskProps) => {
+}: TaskFieldProps) => {
   const form = useFormContext();
 
   return (

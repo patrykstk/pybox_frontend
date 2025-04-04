@@ -2,7 +2,7 @@
 
 import api from "@/lib/api";
 import { cookies } from "next/headers";
-import { User } from "@/interfaces/user";
+import { User } from "@/interfaces/models/user";
 
 const getUserData = async () => {
   try {
@@ -22,10 +22,7 @@ const getUserData = async () => {
 
     return response.data;
   } catch (error) {
-    console.error("Error fetching user data:", error.response || error.message);
-    if (error.response) {
-      console.error("Response data:", error.response.data);
-    }
+    console.error(error);
   }
 };
 

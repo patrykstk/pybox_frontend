@@ -1,8 +1,8 @@
 "use server";
 
 import api from "@/lib/api";
-import { Answer } from "@/interfaces/answer";
-import { Task } from "@/interfaces/task";
+import { Answer } from "@/interfaces/models/answer";
+import { Task } from "@/interfaces/models/task";
 
 const getTaskWithAnswer = async (
   taskId: number,

@@ -26,8 +26,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Trash2 } from "lucide-react";
-
-import { useRouter } from "next/navigation";
 import { getModTasks } from "@/server/get-mod-tasks";
 import { deleteAnswer, getTaskAnswers } from "@/server/get-task-answers";
 import { DifficultyBadge } from "@/app/(protected)/tasks/_components/task-table/difficulty-badge";
@@ -36,7 +34,6 @@ import Forbidden from "@/components/forbidden";
 
 export default function TaskAnswersPage() {
   const queryClient = useQueryClient();
-  const router = useRouter();
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
   const { data: userData, isLoading: isLoadingUser } = useQuery({
@@ -73,7 +70,7 @@ export default function TaskAnswersPage() {
 
   const deleteMutation = useMutation({
     mutationFn: (answerId: number) => deleteAnswer(answerId),
-    onSuccess: (data, answerId) => {
+    onSuccess: (data) => {
       if (data?.status === "success") {
         queryClient.invalidateQueries({
           queryKey: ["answers", selectedTaskId],

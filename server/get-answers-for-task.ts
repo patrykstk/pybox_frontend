@@ -2,7 +2,7 @@
 
 import api from "@/lib/api";
 import { ApiResponse } from "@/interfaces/api-response";
-import { Author } from "@/interfaces/author";
+import { Author } from "@/interfaces/models/author";
 
 interface Answer {
   id: number;

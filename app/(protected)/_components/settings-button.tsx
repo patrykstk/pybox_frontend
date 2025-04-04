@@ -18,11 +18,7 @@ const SettingsButton = () => {
 
   const [loading, setLoading] = useState(false);
 
-  const {
-    data: user,
-    status,
-    error,
-  } = useQuery({
+  const { data: user, status } = useQuery({
     queryKey: ["user"],
     queryFn: getUserData,
   });

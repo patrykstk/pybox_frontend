@@ -1,6 +1,6 @@
 import { getUserData } from "@/server/get-user-data";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User } from "@/interfaces/user";
+import { User } from "@/interfaces/models/user";
 
 const Profile = async () => {
   const user: User | undefined = await getUserData();
