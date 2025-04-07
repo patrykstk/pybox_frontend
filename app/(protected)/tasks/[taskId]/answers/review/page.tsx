@@ -10,10 +10,12 @@ import { Eye } from "lucide-react";
 import { getAnswersForTask } from "@/server/get-answers-for-task";
 import { Answer } from "@/interfaces/models/answer";
 import { ApiResponse } from "@/interfaces/api-response";
+import CorrectBadge from "@/app/(protected)/tasks/_components/correct-badge";
 
 interface Answers extends ApiResponse {
   data: Answer[];
 }
+
 const TestAnswers = () => {
   const router = useRouter();
   const { taskId } = useParams() as { taskId: string };
@@ -68,10 +70,8 @@ const TestAnswers = () => {
                     <td className="py-3 px-4">
                       {answer.is_correct === null ? (
                         <Badge variant="outline">Oczekuje na wykonanie</Badge>
-                      ) : answer.is_correct ? (
-                        <Badge variant="success">Correct</Badge>
                       ) : (
-                        <Badge variant="destructive">Błędne</Badge>
+                        <CorrectBadge type={answer.is_correct as string} />
                       )}
                     </td>
                     <td className="py-3 px-4">
