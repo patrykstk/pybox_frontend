@@ -7,13 +7,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
-import { getAnswersForTask } from "@/server/get-answers-for-task";
-import { Answer } from "@/interfaces/models/answer";
 import { ApiResponse } from "@/interfaces/api-response";
 import CorrectBadge from "@/app/(protected)/tasks/_components/correct-badge";
+import { Author } from "@/interfaces/models/author";
+import { getAnswersForTaskTable } from "@/server/get-answers-for-tasks-table";
+
+interface Answer {
+  id: number;
+  code: string;
+  output: string | null;
+  is_correct: string;
+  mark: number | null;
+  created_at: string;
+  updated_at: string;
+  user: Author;
+}
 
 interface Answers extends ApiResponse {
   data: Answer[];
+  current_page: number;
+  total: number;
+  per_page: number;
+  last_page: number;
+  first_page_url: string;
+  last_page_url: string;
+  next_page_url: string | null;
+  prev_page_url: string | null;
+  from: number;
+  to: number;
+  links: {
+    url: string | null;
+    label: string;
+    active: boolean;
+  }[];
 }
 
 const TestAnswers = () => {
@@ -26,7 +52,7 @@ const TestAnswers = () => {
     isError,
   } = useQuery<Answers>({
     queryKey: ["answers", taskId],
-    queryFn: () => getAnswersForTask(taskId),
+    queryFn: () => getAnswersForTaskTable(taskId),
   });
 
   const handleViewAnswer = (answer: Answer) => {
@@ -71,7 +97,7 @@ const TestAnswers = () => {
                       {answer.is_correct === null ? (
                         <Badge variant="outline">Oczekuje na wykonanie</Badge>
                       ) : (
-                        <CorrectBadge type={answer.is_correct as string} />
+                        <CorrectBadge type={answer.is_correct} />
                       )}
                     </td>
                     <td className="py-3 px-4">
