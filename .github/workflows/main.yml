@@ -49,6 +49,7 @@ jobs:
             --name ${{ secrets.AKS_CLUSTER_NAME }}
 
       - name: Deploy or update AKS deployment
+        shell: bash {0}
         run: |
           NAMESPACE=default
           DEPLOYMENT=nextjs-deployment
