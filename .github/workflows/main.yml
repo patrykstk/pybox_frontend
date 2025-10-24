@@ -65,8 +65,7 @@ jobs:
             kubectl create deployment $DEPLOYMENT \
               --image=$IMAGE \
               --replicas=2 \
-              --dry-run=client -o yaml | \
-              sed "s/name: $DEPLOYMENT/name: $CONTAINER_NAME/" > k8s/deployment.yaml
+              --dry-run=client -o yaml -n $NAMESPACE > k8s/deployment.yaml
 
             echo "---" >> k8s/deployment.yaml
 
@@ -74,7 +73,7 @@ jobs:
               --type=LoadBalancer \
               --port=80 \
               --target-port=3000 \
-              --dry-run=client -o yaml >> k8s/deployment.yaml
+              --dry-run=client -o yaml -n $NAMESPACE >> k8s/deployment.yaml
 
             kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
           fi
