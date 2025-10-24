@@ -79,7 +79,7 @@ jobs:
             echo "Creating new deployment and service..."
             kubectl create deployment $DEPLOYMENT \
               --image=$IMAGE \
-              --replicas=2 \
+              --replicas=1 \
               -n $NAMESPACE
 
             kubectl expose deployment $DEPLOYMENT \
