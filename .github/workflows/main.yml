@@ -73,7 +73,6 @@ jobs:
               --target-port=3000 \
               -n $NAMESPACE
 
-            # Opcjonalnie poczekaj, aż LoadBalancer dostanie external IP
             echo "Waiting for external IP..."
             kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
           fi
