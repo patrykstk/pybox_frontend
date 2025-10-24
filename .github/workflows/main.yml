@@ -57,23 +57,23 @@ jobs:
           IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_and_push_docker.outputs.image_sha }}
 
           if kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
+            echo "Updating existing deployment..."
             kubectl set image deployment/$DEPLOYMENT $CONTAINER_NAME=$IMAGE -n $NAMESPACE
             kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE --timeout=3m
           else
-            mkdir -p k8s
-
+            echo "Creating new deployment and service..."
             kubectl create deployment $DEPLOYMENT \
               --image=$IMAGE \
               --replicas=2 \
-              --dry-run=client -o yaml -n $NAMESPACE > k8s/deployment.yaml
-
-            echo "---" >> k8s/deployment.yaml
+              -n $NAMESPACE
 
             kubectl expose deployment $DEPLOYMENT \
               --type=LoadBalancer \
               --port=80 \
               --target-port=3000 \
-              --dry-run=client -o yaml -n $NAMESPACE >> k8s/deployment.yaml
+              -n $NAMESPACE
 
-            kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
+            # Opcjonalnie poczekaj, aż LoadBalancer dostanie external IP
+            echo "Waiting for external IP..."
+            kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
           fi
