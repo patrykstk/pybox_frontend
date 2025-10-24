@@ -61,14 +61,18 @@ jobs:
           else
             mkdir -p k8s
             kubectl create deployment $DEPLOYMENT \
-              --image=$IMAGE \
-              --replicas=2 \
-              --dry-run=client -o yaml > k8s/deployment.yaml
+            --image=$IMAGE \
+            --replicas=2 \
+            --dry-run=client -o yaml > k8s/deployment.yaml
+
+            echo "---" >> k8s/deployment.yaml
+
             kubectl expose deployment $DEPLOYMENT \
               --type=LoadBalancer \
               --port=80 \
               --target-port=3000 \
               --dry-run=client -o yaml >> k8s/deployment.yaml
+
             kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
           fi
 
