@@ -53,17 +53,21 @@ jobs:
         run: |
           NAMESPACE=default
           DEPLOYMENT=nextjs-deployment
+          CONTAINER_NAME=nextjs-container
           IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_and_push_docker.outputs.image_sha }}
 
           if kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
-            kubectl set image deployment/$DEPLOYMENT nextjs-container=$IMAGE -n $NAMESPACE
+            # Używamy prawidłowej nazwy kontenera przy aktualizacji obrazu
+            kubectl set image deployment/$DEPLOYMENT $DEPLOYMENT=$IMAGE -n $NAMESPACE
             kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE --timeout=3m
           else
             mkdir -p k8s
+
             kubectl create deployment $DEPLOYMENT \
-            --image=$IMAGE \
-            --replicas=2 \
-            --dry-run=client -o yaml > k8s/deployment.yaml
+              --image=$IMAGE \
+              --replicas=2 \
+              --dry-run=client -o yaml | \
+              sed "s/name: $DEPLOYMENT/name: $CONTAINER_NAME/" > k8s/deployment.yaml
 
             echo "---" >> k8s/deployment.yaml
 
@@ -73,6 +77,6 @@ jobs:
               --target-port=3000 \
               --dry-run=client -o yaml >> k8s/deployment.yaml
 
+            # Aplikujemy zasoby
             kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
           fi
-
