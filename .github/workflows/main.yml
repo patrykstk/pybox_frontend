@@ -60,6 +60,21 @@ jobs:
             echo "Updating existing deployment..."
             kubectl set image deployment/$DEPLOYMENT $CONTAINER_NAME=$IMAGE -n $NAMESPACE
             kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE --timeout=3m
+
+            if ! kubectl get svc $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
+              echo "Service not found, creating service..."
+              kubectl expose deployment $DEPLOYMENT \
+                --type=LoadBalancer \
+                --port=80 \
+                --target-port=3000 \
+                -n $NAMESPACE
+
+              echo "Waiting for external IP..."
+              kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
+            else
+              echo "Service already exists, skipping creation."
+            fi
+
           else
             echo "Creating new deployment and service..."
             kubectl create deployment $DEPLOYMENT \
