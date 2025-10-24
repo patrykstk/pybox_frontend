@@ -50,7 +50,6 @@ jobs:
 
       - name: Deploy or update AKS deployment
         run: |
-          set -e
           NAMESPACE=default
           DEPLOYMENT=nextjs-deployment
           IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_and_push_docker.outputs.image_sha }}
@@ -71,3 +70,4 @@ jobs:
               --dry-run=client -o yaml >> k8s/deployment.yaml
             kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
           fi
+
