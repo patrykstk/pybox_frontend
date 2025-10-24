@@ -1,74 +1,50 @@
 on: [push]
-name: build_push_and_deploy_to_aks
+
+name: push_to_acr_and_deploy_to_aks
 
 jobs:
   build_docker:
     runs-on: ubuntu-latest
-    outputs:
-      image_sha: ${{ steps.set_image.outputs.image_sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: 'Checkout GitHub Action'
+        uses: actions/checkout@main
 
-      - name: Build Docker image
-        id: set_image
-        run: |
-          IMAGE_SHA=${{ github.sha }}
-          IMAGE=nextjs-docker:$IMAGE_SHA
-          docker build -f Dockerfile.bun -t $IMAGE .
-          echo "image_sha=$IMAGE_SHA" >> $GITHUB_OUTPUT
-
-  push_docker:
-    runs-on: ubuntu-latest
-    needs: build_docker
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Login to ACR
+      - name: 'Login to ACR'
         uses: azure/docker-login@v1
         with:
           login-server: ${{ secrets.REGISTRY_LOGIN_SERVER }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
 
-      - name: Tag and push Docker image
+      - name: 'Build and push image with SHA and latest tags'
         run: |
-          IMAGE_SHA=${{ needs.build_docker.outputs.image_sha }}
-          IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:$IMAGE_SHA
-          docker tag nextjs-docker:$IMAGE_SHA $IMAGE
-          docker tag nextjs-docker:$IMAGE_SHA ${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:latest
-          docker push $IMAGE
+          docker build -f Dockerfile.bun -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ github.sha }} -t ${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:latest .
+          docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ github.sha }}
           docker push ${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:latest
 
-  deploy_aks:
-    runs-on: ubuntu-latest
-    needs: push_docker
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      - name: Azure login
+      - name: 'Azure Login'
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Setup kubectl
+        run: |
+          az aks install-cli
 
-      - name: Install kubectl
-        run: az aks install-cli
-
-      - name: Set AKS context
+      - name: 'Set AKS context'
         run: |
           az aks get-credentials \
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name ${{ secrets.AKS_CLUSTER_NAME }}
 
-      - name: Deploy or update AKS deployment
+      - name: 'Deploy or update AKS deployment'
         run: |
           set -e
           NAMESPACE=default
           DEPLOYMENT=nextjs-deployment
-          IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_docker.outputs.image_sha }}
+          IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ github.sha }}
 
+          # Sprawdzenie czy deployment istnieje
           if kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
             echo "Deployment exists, updating image..."
             kubectl set image deployment/$DEPLOYMENT nextjs-container=$IMAGE -n $NAMESPACE
@@ -76,14 +52,17 @@ jobs:
           else
             echo "Deployment does not exist, creating deployment dynamically..."
             mkdir -p k8s
+            # Generowanie Deployment
             kubectl create deployment $DEPLOYMENT \
               --image=$IMAGE \
               --replicas=2 \
               --dry-run=client -o yaml > k8s/deployment.yaml
+            # Generowanie Service typu LoadBalancer
             kubectl expose deployment $DEPLOYMENT \
               --type=LoadBalancer \
               --port=80 \
               --target-port=3000 \
               --dry-run=client -o yaml >> k8s/deployment.yaml
+            # Apply do klastra
             kubectl apply -f k8s/deployment.yaml -n $NAMESPACE
           fi
