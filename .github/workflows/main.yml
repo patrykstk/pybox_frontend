@@ -53,7 +53,7 @@ jobs:
         run: |
           NAMESPACE=default
           DEPLOYMENT=nextjs-deployment
-          CONTAINER_NAME=nextjs-container
+          CONTAINER_NAME=nextjs-docker
           IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_and_push_docker.outputs.image_sha }}
 
           if kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
