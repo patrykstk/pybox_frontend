@@ -63,11 +63,7 @@ jobs:
 
             if ! kubectl get svc $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
               echo "Service not found, creating service..."
-              kubectl expose deployment $DEPLOYMENT \
-                --type=LoadBalancer \
-                --port=80 \
-                --target-port=3000 \
-                -n $NAMESPACE
+              
 
               echo "Waiting for external IP..."
               kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
@@ -82,12 +78,7 @@ jobs:
               --replicas=1 \
               -n $NAMESPACE
 
-            kubectl expose deployment $DEPLOYMENT \
-              --type=LoadBalancer \
-              --port=80 \
-              --target-port=3000 \
-              -n $NAMESPACE
-
+           
             echo "Waiting for external IP..."
             kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
           fi
