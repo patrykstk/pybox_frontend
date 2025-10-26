@@ -48,7 +48,7 @@ jobs:
             --resource-group ${{ secrets.RESOURCE_GROUP }} \
             --name ${{ secrets.AKS_CLUSTER_NAME }}
 
-      - name: Deploy or update AKS deployment
+      - name: Deploy updated image to AKS
         shell: bash {0}
         run: |
           NAMESPACE=default
@@ -56,29 +56,17 @@ jobs:
           CONTAINER_NAME=nextjs-docker
           IMAGE=${{ secrets.REGISTRY_LOGIN_SERVER }}/nextjs-docker:${{ needs.build_and_push_docker.outputs.image_sha }}
 
+          echo "Using existing service: pybox-frontend"
+          echo "Updating deployment: $DEPLOYMENT"
+
+          # Upewnij się, że deployment istnieje
           if kubectl get deployment $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
-            echo "Updating existing deployment..."
             kubectl set image deployment/$DEPLOYMENT $CONTAINER_NAME=$IMAGE -n $NAMESPACE
+
             kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE --timeout=3m
 
-            if ! kubectl get svc $DEPLOYMENT -n $NAMESPACE >/dev/null 2>&1; then
-              echo "Service not found, creating service..."
-              
-
-              echo "Waiting for external IP..."
-              kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
-            else
-              echo "Service already exists, skipping creation."
-            fi
-
+            echo " Deployment updated successfully and connected to existing Service pybox-frontend"
           else
-            echo "Creating new deployment and service..."
-            kubectl create deployment $DEPLOYMENT \
-              --image=$IMAGE \
-              --replicas=1 \
-              -n $NAMESPACE
-
-           
-            echo "Waiting for external IP..."
-            kubectl get svc $DEPLOYMENT -n $NAMESPACE -w
+            echo "Deployment '$DEPLOYMENT' not found in namespace '$NAMESPACE'."
+            exit 1
           fi
